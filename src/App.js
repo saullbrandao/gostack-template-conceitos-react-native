@@ -17,12 +17,22 @@ export default function App() {
   useEffect(() => {
     api.get('repositories').then(response => {
       setRepositories(response.data)
-      console.log(repositories)
     })
   }, [])
 
-  async function handleLikeRepository(id) {
-    // Implement "Like Repository" functionality
+  const handleLikeRepository = async (id) => {
+    const response = await api.post(`repositories/${id}/like`)
+    const likedRepository = response.data
+
+    const newRepositories = repositories.map(repo => {
+      if (repo.id === id) {
+        return likedRepository
+      } else {
+        return repo
+      }
+    })
+
+    setRepositories(newRepositories)
   }
 
   return (
@@ -39,7 +49,7 @@ export default function App() {
 
                 <View style={styles.techsContainer}>
                   {repo.techs.map(tech => {
-                    <Text style={styles.tech}>
+                    <Text key={tech} style={styles.tech}>
                       {tech}
                     </Text>
                   })}
@@ -56,7 +66,7 @@ export default function App() {
 
                 <TouchableOpacity
                   style={styles.button}
-                  onPress={() => handleLikeRepository(1)}
+                  onPress={() => handleLikeRepository(repo.id)}
                   testID={`like-button-${repo.id}`}
                 >
                   <Text style={styles.buttonText}>Curtir</Text>
